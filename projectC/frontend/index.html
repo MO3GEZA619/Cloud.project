@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API Frontend</title>
+    <link rel="stylesheet" href="./bootstrap.min.css">
+
+</head>
+<style>
+    body {
+        background-color: #ffffff;
+        color: #000000;
+        font-size: 16px;
+        margin: 0;
+        padding: 0;
+    }
+
+    h1 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 0;
+    }
+
+    h2 {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 0;
+    }
+
+    p {
+        margin-bottom: 10px;
+    }
+
+    a {
+        color: #000000;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #000000;
+        text-decoration: underline;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+    .form-control {
+        width: 100%;
+        border: 1px solid #000000;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .btn {
+        background-color: #000000;
+        color: #ffffff;
+        font-weight: bold;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: #000000;
+        color: #ffffff;
+        font-weight: bold;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .modal-content {
+        border-radius: 10px;
+        background-color: #ffffff;
+        padding: 20px;
+    }
+
+    .modal-header {
+        background-color: #000000;
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .modal-title {
+        font-size: 24px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 20px;
+    }
+
+    .btn-primary {
+        background-color: #000000;
+        color: #ffffff;
+        font-weight: bold;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background-color: #000000;
+        color: #ffffff;
+        font-weight: bold;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 60%;
+        margin: 0 auto;
+    }
+
+    th,
+    td {
+        border: 1px solid black;
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: lightgray;
+        font-weight: bold;
+    }
+
+    tr:nth-of-type(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #23f361;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <form id="postForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" class="form-control"><br><br>
+                <label for="age">Age:</label>
+                <input type="text" id="age" name="age" class="form-control"><br><br>
+                <label for="gender">Gender:</label>
+                <input type="text" id="gender" name="gender" class="form-control"><br><br>
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" class="form-control"><br><br>
+
+                <button id="addperson" class="btn btn-primary">Submit</button>
+
+            </form>
+        </div>
+        <br>
+        <button id="getBtn" class="btn btn-primary">Get Data</button>
+        <button id="putBtn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Update
+            Data</button>
+        <button id="deleteBtn" class="btn btn-danger">Delete Data</button>
+
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Update Person</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <form class="form-group">
+                            <label for="">id</label>
+                            <input type="text" class="form-control" id="updateID">
+                            <label for="">Name</label>
+                            <input type="text" class="form-control" id="updateName">
+                            <label for="">Age</label>
+                            <input type="number" class="form-control" id="updateAge">
+                            <label for="">Gender</label>
+                            <input type="text" class="form-control" id="updateGender">
+                            <label for="">Email</label>
+                            <input type="text" class="form-control" id="updateEmail">
+
+
+                        </form>
+
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="saveChanges">Save
+                            changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <br>
+
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('getBtn').addEventListener('click', function () {
+            fetch(`http://localhost:5000/persons/`)
+                .then(response => response.json())
+
+                .then(data => {
+                    const headers = ['Name', 'Age', 'Gender', 'Email', 'Id'];
+                    const table = document.createElement("table");
+                    const thead = document.createElement("thead");
+                    const tr = document.createElement("tr");
+
+                    for (const header of headers) {
+                        const th = document.createElement("th");
+
+                    }
+
+                    table.appendChild(thead);
+
+
+
+                    document.getElementById("response").appendChild(table);
+
+
+                    for (const key in data[0]) {
+                        const th = document.createElement("th");
+                        th.textContent = key;
+                        tr.appendChild(th);
+                    }
+                    thead.appendChild(tr);
+
+                    for (const person of data) {
+                        const tr = document.createElement("tr");
+                        for (const key in person) {
+                            const td = document.createElement("td");
+                            td.textContent = person[key];
+                            tr.appendChild(td);
+                        }
+                        table.appendChild(tr);
+                    }
+
+                    const label = document.createElement("caption");
+                    label.textContent = "DATA TAPLE";
+                    table.appendChild(label);
+
+                    document.getElementById("response").appendChild(table);
+                    document.getElementById("response").appendChild(document.createElement("br"));
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+
+
+        document.getElementById('postForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const personData = Object.fromEntries(formData.entries());
+
+            fetch(`http://localhost:5000/persons/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(personData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('response').textContent = JSON.stringify(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+
+        document.getElementById('saveChanges').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent default form submission behavior
+
+            const updateId = document.getElementById('updateID').value;
+
+
+            // Get updated values from the form
+            let updateData = {
+                name: document.getElementById('updateName').value,
+                email: document.getElementById('updateEmail').value,
+                gender: document.getElementById('updateGender').value,
+                age: document.getElementById('updateAge').value
+
+
+            };
+            updateperson(updateId, updateData);
+        });
+        // Send PATCH request to update the data
+
+        async function updateperson(id, updateData) {
+            console.log(updateData);
+            let apiResponse = await fetch(`http://localhost:5000/persons/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "content-type": "application/json"
+                }, body: JSON.stringify(updateData)
+            });
+
+            let response = await apiResponse.json();
+        }
+
+
+
+        document.getElementById('deleteBtn').addEventListener('click', function () {
+            const deleteId = prompt("Enter the ID of the user to delete:");
+            if (deleteId) {
+                fetch(`http://localhost:5000/persons/${deleteId}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('response').textContent = JSON.stringify(data);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            }
+        });
+    </script>
+    <script src="./bootstrap.min.js"></script>
+</body>
+
+</html>
